@@ -1,0 +1,2 @@
+# RedstoneTerminologiesServer
+生电专有名词翻译服务端程序
