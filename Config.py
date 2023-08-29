@@ -1,1 +1,3 @@
-repo_path = 'D:/RTRO/RedstoneTerminologies'
+REPO_PATH = 'D:/RTRO/RedstoneTerminologies'
+AUTH = ("aye10032", "114514")
+PORT = 8070
