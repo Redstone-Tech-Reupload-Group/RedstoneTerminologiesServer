@@ -3,7 +3,6 @@
 import json
 import os.path
 import pandas as pd
-from utils import CodeUtil
 
 import Config
 
@@ -30,9 +29,10 @@ def add_word(word, trans, desc, example, tag, repo_path=Config.REPO_PATH):
 
     index = dictionary.index[-1]
 
-    add_index(word, tag, index, repo_path)
+    add_index(word, tag, index)
+    modify_tag(tag, first_char, index)
 
-    return index
+    return first_char, index
 
 
 def add_index(word, tag, index, repo_path=Config.REPO_PATH):
@@ -89,3 +89,15 @@ def add_tag(tag, repo_path=Config.REPO_PATH):
         with open(tag_path, 'w', encoding='utf-8') as tag_file:
             json.dump(tag_dict, tag_file, ensure_ascii=False)
         return 1, list(tag_dict)
+
+
+def modify_tag(tags, first_char, index, repo_path=Config.REPO_PATH):
+    tag_path = os.path.join(repo_path, 'tag.json')
+    with open(tag_path, 'r', encoding='utf-8') as tag_file:
+        tag_dict = json.load(tag_file)
+
+    for tag in tags:
+        tag_dict[tag].append(f'{first_char}-{index}')
+
+    with open(tag_path, 'w', encoding='utf-8') as tag_file:
+        json.dump(tag_dict, tag_file, ensure_ascii=False)

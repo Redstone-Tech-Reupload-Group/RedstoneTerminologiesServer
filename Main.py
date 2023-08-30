@@ -25,26 +25,27 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             text_desc = gr.TextArea(label="描述", lines=7)
             text_example = gr.TextArea(label="示例", lines=5)
             btn_add = gr.Button('添加')
+            label_word = gr.Markdown('')
 
 
     def add_word(word, trans, tag, desc, example):
-        Dic.add_word(word, trans, desc, example, tag)
-        return 0
+        fi, index = Dic.add_word(word, trans, desc, example, tag)
+        return f'添加了{fi}-{index}号词条'
 
 
     def add_tag(tag):
-        print(tag.encode('utf-8'))
         result, tags = Dic.add_tag(tag)
         print(tags)
         # TODO 说是后续4.0版本会修复不更新的问题
         text_tag.update(choices=tags)
         if result == 1:
+            demo.update()
             return 'success!'
         else:
             return '已存在'
 
 
-    btn_add.click(add_word, inputs=[text_word, text_trans, text_tag, text_desc, text_example])
+    btn_add.click(add_word, inputs=[text_word, text_trans, text_tag, text_desc, text_example], outputs=label_word)
     btn_tag.click(add_tag, inputs=text_new_tag, outputs=label_tag)
 
 if __name__ == '__main__':
