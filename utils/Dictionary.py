@@ -16,6 +16,9 @@ def add_word(word, trans, desc, example, tag, repo_path=Config.REPO_PATH):
     else:
         dictionary = pd.read_csv(dict_path, index_col=0, encoding='utf-8')
 
+        if word in dictionary['Word'].values:
+            return '', -1
+
     record = pd.DataFrame.from_dict({
         'Word': [word],
         'Translation': [trans],
