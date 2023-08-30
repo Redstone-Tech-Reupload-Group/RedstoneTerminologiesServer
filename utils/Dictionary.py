@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
+
+import json
 import os.path
 import pandas as pd
+from utils import CodeUtil
+
+import Config
 
 
-def add_word(word, trans, desc, example, tag, repo_path):
+def add_word(word, trans, desc, example, tag, repo_path=Config.REPO_PATH):
     first_char = word[0].upper()
     dict_path = os.path.join(repo_path, f'dictionary/{first_char}.csv')
 
@@ -29,7 +35,7 @@ def add_word(word, trans, desc, example, tag, repo_path):
     return index
 
 
-def add_index(word, tag, index, repo_path):
+def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_path = os.path.join(repo_path, 'index.csv')
 
     if not os.path.exists(index_path):
@@ -51,3 +57,35 @@ def add_index(word, tag, index, repo_path):
     print(index_data)
 
     return len(index_data) - 1
+
+
+def get_tag(repo_path=Config.REPO_PATH):
+    tag_path = os.path.join(repo_path, 'tag.json')
+
+    if not os.path.exists(tag_path):
+        return []
+    else:
+        with open(tag_path, 'r', encoding='utf-8') as tag_file:
+            tag_str = tag_file.read()
+
+        tag_dict = json.loads(tag_str)
+        return list(tag_dict)
+
+
+def add_tag(tag, repo_path=Config.REPO_PATH):
+    tag_path = os.path.join(repo_path, 'tag.json')
+
+    if not os.path.exists(tag_path):
+        tag_dict = {}
+    else:
+        with open(tag_path, 'r', encoding='utf-8') as tag_file:
+            tag_dict = json.load(tag_file)
+
+    if tag in tag_dict:
+        return -1, list(tag_dict)
+    else:
+        tag_dict[tag] = []
+
+        with open(tag_path, 'w', encoding='utf-8') as tag_file:
+            json.dump(tag_dict, tag_file, ensure_ascii=False)
+        return 1, list(tag_dict)
