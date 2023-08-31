@@ -101,9 +101,10 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
         def del_word(word, tag):
             global now_index
-            Dic.del_word(now_index, word, tag)
+            index = now_index
             now_index = -1
-            return 'delete'
+            Dic.del_word(now_index, word, tag)
+            return f'删除了{word[0].upper()}-{index}号词条'
 
 
         clean_btn.click(clean_input,
