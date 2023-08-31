@@ -77,11 +77,17 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                     text_modify_example = gr.Textbox(label='示例', lines=5)
 
 
+        def clean_input():
+            global now_index
+            now_index = -1
+            return '', '', '', '', []
+
+
         def search_word(word):
             global now_index
             index, result = Dic.search_word(word)
             if index == -1:
-                return '该词条不存在', '', '', '', ''
+                return '该词条不存在', '', '', '', []
             else:
                 now_index = index
                 return 'success', result['Translation'], result['Description'], result['Example'], result[
@@ -92,12 +98,17 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             Dic.modify_word(now_index, word, trans, desc, example, tag)
             return f'修改了{now_index}号词条'
 
+
         def del_word(word, tag):
             global now_index
             Dic.del_word(now_index, word, tag)
             now_index = -1
             return 'delete'
 
+
+        clean_btn.click(clean_input,
+                        outputs=[search_input, text_modify_trans, text_modify_description, text_modify_example,
+                                 text_modify_tag])
 
         search_btn.click(search_word, inputs=search_input,
                          outputs=[label_search, text_modify_trans, text_modify_description, text_modify_example,
