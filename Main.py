@@ -4,6 +4,8 @@ import Config
 import gradio as gr
 import utils.Dictionary as Dic
 
+now_index = -1
+
 with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo:
     gr.Markdown('# 红石科技搬运组专有名词翻译汇总')
     gr.Markdown('欢迎使用红石科技专有名词词库在线维护系统！')
@@ -75,17 +77,27 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
 
         def search_word(word):
+            global now_index
             index, result = Dic.search_word(word)
             if index == -1:
                 return '该词条不存在', '', '', '', ''
             else:
+                now_index = index
                 return 'success', result['Translation'], result['Description'], result['Example'], result[
                     'Tag'].split('|')
+
+
+        def submit_modify(word, trans, desc, example, tag):
+            Dic.modify_word(now_index, word, trans, desc, example, tag)
+            return f'修改了{now_index}号词条'
 
 
         search_btn.click(search_word, inputs=search_input,
                          outputs=[label_search, text_modify_trans, text_modify_description, text_modify_example,
                                   text_modify_tag])
+        submit_btn.click(submit_modify,
+                         inputs=[search_input, text_modify_trans, text_modify_description, text_modify_example,
+                                 text_modify_tag], outputs=label_search)
 
 if __name__ == '__main__':
     demo.launch(auth=Config.AUTH, server_port=Config.PORT)

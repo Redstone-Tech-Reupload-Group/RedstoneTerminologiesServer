@@ -59,6 +59,23 @@ def search_word(word, repo_path=Config.REPO_PATH):
         return index, dict_data.iloc[index].to_dict()
 
 
+def modify_word(index, word, trans, desc, example, tag, repo_path=Config.REPO_PATH):
+    dict_path = os.path.join(repo_path, f'dictionary/{word[0].upper()}.csv')
+
+    if not os.path.exists(dict_path):
+        return -1
+
+    dict_data = pd.read_csv(dict_path, encoding='utf-8', index_col=0)
+    dict_data.at[index, 'Translation'] = trans
+    dict_data.at[index, 'Description'] = desc
+    dict_data.at[index, 'Example'] = example
+    dict_data.at[index, 'Tag'] = '|'.join(tag)
+
+    dict_data.to_csv(dict_path, encoding='utf-8')
+
+    return 1
+
+
 def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_path = os.path.join(repo_path, 'index.csv')
 
@@ -77,8 +94,6 @@ def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_data = pd.concat([index_data, record], ignore_index=True)
     index_data = index_data.sort_values(by='Word')
     index_data.to_csv(index_path, index=False, encoding='utf-8')
-
-    print(index_data)
 
     return len(index_data) - 1
 
