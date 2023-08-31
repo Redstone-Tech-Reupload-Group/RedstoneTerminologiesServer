@@ -38,6 +38,27 @@ def add_word(word, trans, desc, example, tag, repo_path=Config.REPO_PATH):
     return first_char, index
 
 
+def search_word(word, repo_path=Config.REPO_PATH):
+    index_path = os.path.join(repo_path, 'index.csv')
+
+    if not os.path.exists(index_path):
+        return -1, {}
+
+    index_df = pd.read_csv(index_path, encoding='utf-8')
+
+    if word not in index_df['Word'].values:
+        return -1, {}
+    else:
+        index_data = index_df.loc[index_df['Word'] == word]
+        fist_char = index_data['FirstChar'][0]
+        index = index_data['Index'][0]
+        dict_path = os.path.join(repo_path, f'dictionary/{fist_char}.csv')
+
+        dict_data = pd.read_csv(dict_path, encoding='utf-8', index_col=0)
+
+        return index, dict_data.iloc[index].to_dict()
+
+
 def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_path = os.path.join(repo_path, 'index.csv')
 

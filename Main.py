@@ -63,13 +63,29 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                     clean_btn = gr.Button(value='clean')
                     search_btn = gr.Button(value='search', variant='primary')
                 submit_btn = gr.Button(value='submit', variant='primary')
+                label_search = gr.Markdown('')
             with gr.Column(scale=3):
                 with gr.Group():
                     with gr.Row():
                         text_modify_trans = gr.Textbox(label='翻译')
-                        text_modify_tag = gr.Dropdown(label='Tag', choices=Dic.get_tag(), multiselect=True, max_choices=5)
+                        text_modify_tag = gr.Dropdown(label='Tag', choices=Dic.get_tag(), multiselect=True,
+                                                      max_choices=5)
                     text_modify_description = gr.Textbox(label='描述', lines=7)
                     text_modify_example = gr.Textbox(label='示例', lines=5)
+
+
+        def search_word(word):
+            index, result = Dic.search_word(word)
+            if index == -1:
+                return '该词条不存在', '', '', '', ''
+            else:
+                return 'success', result['Translation'], result['Description'], result['Example'], result[
+                    'Tag'].split('|')
+
+
+        search_btn.click(search_word, inputs=search_input,
+                         outputs=[label_search, text_modify_trans, text_modify_description, text_modify_example,
+                                  text_modify_tag])
 
 if __name__ == '__main__':
     demo.launch(auth=Config.AUTH, server_port=Config.PORT)
