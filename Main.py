@@ -55,8 +55,8 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
         btn_add.click(add_word, inputs=[text_word, text_trans, text_tag, text_desc, text_example], outputs=label_word)
         btn_tag.click(add_tag, inputs=text_new_tag, outputs=label_tag)
 
-    with gr.Tab('修改词条'):
-        gr.Markdown('# 修改词条')
+    with gr.Tab('删改词条'):
+        gr.Markdown('# 删改词条')
 
         with gr.Row():
             with gr.Column(scale=1):
@@ -65,6 +65,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                     clean_btn = gr.Button(value='clean')
                     search_btn = gr.Button(value='search', variant='primary')
                 submit_btn = gr.Button(value='submit', variant='primary')
+                del_btn = gr.Button(value='delete', variant='stop')
                 label_search = gr.Markdown('')
             with gr.Column(scale=3):
                 with gr.Group():
@@ -91,6 +92,12 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             Dic.modify_word(now_index, word, trans, desc, example, tag)
             return f'修改了{now_index}号词条'
 
+        def del_word(word, tag):
+            global now_index
+            Dic.del_word(now_index, word, tag)
+            now_index = -1
+            return 'delete'
+
 
         search_btn.click(search_word, inputs=search_input,
                          outputs=[label_search, text_modify_trans, text_modify_description, text_modify_example,
@@ -98,6 +105,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
         submit_btn.click(submit_modify,
                          inputs=[search_input, text_modify_trans, text_modify_description, text_modify_example,
                                  text_modify_tag], outputs=label_search)
+        del_btn.click(del_word, inputs=[search_input, text_modify_tag], outputs=label_search)
 
 if __name__ == '__main__':
     demo.launch(auth=Config.AUTH, server_port=Config.PORT)

@@ -76,13 +76,29 @@ def modify_word(index, word, trans, desc, example, tag, repo_path=Config.REPO_PA
     return 1
 
 
+def del_word(index, word, tag, repo_path=Config.REPO_PATH):
+    dict_path = os.path.join(repo_path, f'dictionary/{word[0].upper()}.csv')
+
+    if not os.path.exists(dict_path):
+        return -1
+
+    dict_data = pd.read_csv(dict_path, encoding='utf-8', index_col=0)
+    dict_data.drop(index, inplace=True)
+    dict_data.to_csv(dict_path, encoding='utf-8')
+
+    del_index(word)
+    del_tag_index(tag, f'{word[0].upper()}-{index}')
+
+    return 1
+
+
 def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_path = os.path.join(repo_path, 'index.csv')
 
     if not os.path.exists(index_path):
         index_data = pd.DataFrame(columns=['Word', 'Tag', 'Index', 'FirstChar'])
     else:
-        index_data = pd.read_csv(index_path)
+        index_data = pd.read_csv(index_path, encoding='utf-8')
 
     record = pd.DataFrame.from_dict({
         'Word': [word],
@@ -96,6 +112,20 @@ def add_index(word, tag, index, repo_path=Config.REPO_PATH):
     index_data.to_csv(index_path, index=False, encoding='utf-8')
 
     return len(index_data) - 1
+
+
+def del_index(word, repo_path=Config.REPO_PATH):
+    index_path = os.path.join(repo_path, 'index.csv')
+
+    if not os.path.exists(index_path):
+        return -1
+    else:
+        index_data = pd.read_csv(index_path, encoding='utf-8')
+        index_data = index_data[index_data['Word'] != word]
+
+        index_data.to_csv(index_path, index=False, encoding='utf-8')
+
+        return 1
 
 
 def get_tag(repo_path=Config.REPO_PATH):
@@ -137,6 +167,19 @@ def modify_tag(tags, first_char, index, repo_path=Config.REPO_PATH):
 
     for tag in tags:
         tag_dict[tag].append(f'{first_char}-{index}')
+
+    with open(tag_path, 'w', encoding='utf-8') as tag_file:
+        json.dump(tag_dict, tag_file, ensure_ascii=False)
+
+
+def del_tag_index(tags, index, repo_path=Config.REPO_PATH):
+    tag_path = os.path.join(repo_path, 'tag.json')
+    with open(tag_path, 'r', encoding='utf-8') as tag_file:
+        tag_dict = json.load(tag_file)
+
+    for tag in tags:
+        if tag in tag_dict:
+            tag_dict[tag] = [value for value in tag_dict[tag] if value != index]
 
     with open(tag_path, 'w', encoding='utf-8') as tag_file:
         json.dump(tag_dict, tag_file, ensure_ascii=False)
