@@ -144,4 +144,4 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
         push_btn.click(GitUtil.git_push, outputs=label_git)
 
 if __name__ == '__main__':
-    demo.launch(auth=Config.AUTH, server_port=Config.PORT)
+    demo.launch(auth=Config.AUTH, favicon_path='res/logo.ico', server_name='0.0.0.0', server_port=Config.PORT)
