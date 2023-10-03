@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import Config
 import gradio as gr
 from utils import Dictionary, GitUtil
+
+try:
+    import Config_private as Config
+except ImportError:
+    import Config
 
 now_index = -1
 now_tab = ''

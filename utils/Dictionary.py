@@ -4,7 +4,10 @@ import json
 import os.path
 import pandas as pd
 
-import Config
+try:
+    import Config_private as Config
+except ImportError:
+    import Config
 
 
 def add_word(word, trans, desc, example, tag, repo_path=Config.REPO_PATH):

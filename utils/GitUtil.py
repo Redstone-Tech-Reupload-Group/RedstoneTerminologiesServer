@@ -1,6 +1,9 @@
 import subprocess
 
-import Config
+try:
+    import Config_private as Config
+except ImportError:
+    import Config
 
 
 def git_pull(repo_path=Config.REPO_PATH):
