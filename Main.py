@@ -2,14 +2,15 @@
 
 import Config
 import gradio as gr
-import utils.Dictionary as Dic
+from utils import Dictionary, GitUtil
 
 now_index = -1
+now_tab = ''
 
 with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo:
     gr.Markdown('# 红石科技搬运组专有名词翻译汇总')
     gr.Markdown('欢迎使用红石科技专有名词词库在线维护系统！')
-    with gr.Tab('新词条'):
+    with gr.Tab('新词条') as new_tab:
         gr.Markdown('## 添加新词条')
         gr.Markdown('此界面用于新增词条')
 
@@ -18,7 +19,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                 with gr.Column(variant='panel'):
                     text_word = gr.Textbox(label="原词/词组")
                     text_trans = gr.Textbox(label="翻译")
-                    text_tag = gr.Dropdown(label="Tag", choices=Dic.get_tag(), max_choices=5,
+                    text_tag = gr.Dropdown(label="Tag", choices=Dictionary.get_tag(), max_choices=5,
                                            multiselect=True)
                 with gr.Accordion(label='添加Tag', open=False):
                     text_new_tag = gr.Textbox(label='Tag')
@@ -33,7 +34,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
 
         def add_word(word, trans, tag, desc, example):
-            fi, index = Dic.add_word(word, trans, desc, example, tag)
+            fi, index = Dictionary.add_word(word, trans, desc, example, tag)
             if index == -1:
                 return '已存在该词条，请前往修改界面进行修改'
 
@@ -41,7 +42,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
 
         def add_tag(tag):
-            result, tags = Dic.add_tag(tag)
+            result, tags = Dictionary.add_tag(tag)
             print(tags)
             # TODO 说是后续4.0版本会修复不更新的问题
             text_tag.update(choices=tags)
@@ -55,7 +56,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
         btn_add.click(add_word, inputs=[text_word, text_trans, text_tag, text_desc, text_example], outputs=label_word)
         btn_tag.click(add_tag, inputs=text_new_tag, outputs=label_tag)
 
-    with gr.Tab('删改词条'):
+    with gr.Tab('删改词条') as modify_tab:
         gr.Markdown('# 删改词条')
 
         with gr.Row():
@@ -71,7 +72,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                 with gr.Group():
                     with gr.Row():
                         text_modify_trans = gr.Textbox(label='翻译')
-                        text_modify_tag = gr.Dropdown(label='Tag', choices=Dic.get_tag(), multiselect=True,
+                        text_modify_tag = gr.Dropdown(label='Tag', choices=Dictionary.get_tag(), multiselect=True,
                                                       max_choices=5)
                     text_modify_description = gr.Textbox(label='描述', lines=7)
                     text_modify_example = gr.Textbox(label='示例', lines=5)
@@ -85,7 +86,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
         def search_word(word):
             global now_index
-            index, result = Dic.search_word(word)
+            index, result = Dictionary.search_word(word)
             if index == -1:
                 return '该词条不存在', '', '', '', []
             else:
@@ -95,7 +96,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
 
         def submit_modify(word, trans, desc, example, tag):
-            Dic.modify_word(now_index, word, trans, desc, example, tag)
+            Dictionary.modify_word(now_index, word, trans, desc, example, tag)
             return f'修改了{now_index}号词条'
 
 
@@ -103,7 +104,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             global now_index
             index = now_index
             now_index = -1
-            Dic.del_word(now_index, word, tag)
+            Dictionary.del_word(now_index, word, tag)
             return f'删除了{word[0].upper()}-{index}号词条'
 
 
@@ -118,6 +119,25 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
                          inputs=[search_input, text_modify_trans, text_modify_description, text_modify_example,
                                  text_modify_tag], outputs=label_search)
         del_btn.click(del_word, inputs=[search_input, text_modify_tag], outputs=label_search)
+
+    with gr.Accordion(label='github 推送', open=True):
+        with gr.Row():
+            with gr.Column(scale=5):
+                text_commit = gr.Textbox(label='commit', lines=5)
+            with gr.Column(scale=1):
+                commit_btn = gr.Button(value='commit')
+                push_btn = gr.Button(value='push', variant='primary')
+                label_git = gr.Markdown('')
+
+
+        def commit(msg):
+            GitUtil.git_add()
+            GitUtil.git_commit(msg)
+            return 'done'
+
+
+        commit_btn.click(commit, inputs=text_commit, outputs=label_git)
+        push_btn.click(GitUtil.git_push, outputs=label_git)
 
 if __name__ == '__main__':
     demo.launch(auth=Config.AUTH, server_port=Config.PORT)

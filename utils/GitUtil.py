@@ -34,11 +34,6 @@ def git_push(repo_path=Config.REPO_PATH):
     process = subprocess.Popen(['git', 'push', 'origin', '-o', 'main'], cwd=repo_path)
     process.wait()
     if process.returncode == 0:
-        print('done')
+        return 'push done'
     else:
-        print('error')
-
-
-# git_add()
-# git_commit('init file')
-git_push()
+        return 'push fail'
