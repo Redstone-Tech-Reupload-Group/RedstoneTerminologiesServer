@@ -135,6 +135,7 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
 
 
         def commit(msg):
+            GitUtil.git_pull()
             GitUtil.git_add()
             GitUtil.git_commit(msg)
             return 'done'
