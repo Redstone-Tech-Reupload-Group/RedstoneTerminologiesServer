@@ -108,8 +108,8 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             global now_index
             index = now_index
             now_index = -1
-            Dictionary.del_word(now_index, word, tag)
-            return f'删除了{word[0].upper()}-{index}号词条'
+            Dictionary.del_word(index, word, tag)
+            return f'删除了{word[0].upper()}-{index}号词条', '', '', '', []
 
 
         clean_btn.click(clean_input,
@@ -122,7 +122,9 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
         submit_btn.click(submit_modify,
                          inputs=[search_input, text_modify_trans, text_modify_description, text_modify_example,
                                  text_modify_tag], outputs=label_search)
-        del_btn.click(del_word, inputs=[search_input, text_modify_tag], outputs=label_search)
+        del_btn.click(del_word, inputs=[search_input, text_modify_tag],
+                      outputs=[label_search, text_modify_trans, text_modify_description, text_modify_example,
+                               text_modify_tag])
 
     with gr.Accordion(label='github 推送', open=True):
         with gr.Row():
