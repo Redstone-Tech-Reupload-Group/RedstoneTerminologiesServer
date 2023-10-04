@@ -40,3 +40,12 @@ def git_push(repo_path=Config.REPO_PATH):
         return 'push done'
     else:
         return 'push fail'
+
+
+def git_checkout(repo_path=Config.REPO_PATH):
+    process = subprocess.Popen(['git', 'checkout', '.'], cwd=repo_path)
+    process.wait()
+    if process.returncode == 0:
+        return '已撤销本地改动'
+    else:
+        return 'fail'
