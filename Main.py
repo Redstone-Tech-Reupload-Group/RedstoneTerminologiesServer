@@ -49,16 +49,15 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             result, tags = Dictionary.add_tag(tag)
             print(tags)
             # TODO 说是后续4.0版本会修复不更新的问题
-            text_tag.update(choices=tags)
             if result == 1:
                 demo.update()
-                return 'success!'
+                return 'success!', gr.Dropdown(label="Tag", choices=tags, max_choices=5, multiselect=True)
             else:
-                return '已存在'
+                return '已存在', gr.Dropdown(label="Tag", choices=tags, max_choices=5, multiselect=True)
 
 
         btn_add.click(add_word, inputs=[text_word, text_trans, text_tag, text_desc, text_example], outputs=label_word)
-        btn_tag.click(add_tag, inputs=text_new_tag, outputs=label_tag)
+        btn_tag.click(add_tag, inputs=text_new_tag, outputs=[label_tag, text_tag])
 
     with gr.Tab('删改词条') as modify_tab:
         gr.Markdown('# 删改词条')
@@ -144,9 +143,15 @@ with gr.Blocks(title='专有名词翻译汇总', analytics_enabled=True) as demo
             return 'done'
 
 
+        def undo():
+            result = GitUtil.git_checkout()
+            tags = Dictionary.get_tag()
+            return result, gr.Dropdown(label="Tag", choices=tags, max_choices=5, multiselect=True)
+
+
         commit_btn.click(commit, inputs=text_commit, outputs=label_git)
         push_btn.click(GitUtil.git_push, outputs=label_git)
-        undo_btn.click(GitUtil.git_checkout, outputs=label_git)
+        undo_btn.click(undo, outputs=[label_git, text_tag])
 
 if __name__ == '__main__':
     demo.launch(auth=Config.AUTH, favicon_path='res/logo.ico', server_name='0.0.0.0', server_port=Config.PORT)
